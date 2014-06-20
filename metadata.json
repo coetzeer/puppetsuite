@@ -1,0 +1,26 @@
+{
+  "author": "",
+  "checksums": {
+    "puppet\\modules\\dashboard\\templates\\config.RedHat.erb": "14fad2a4458fd0654a53d3c879753827",
+    "puppet\\modules\\dashboard\\templates\\config.Debian.erb": "ee65b90f04b2e5646d207ad331bd3967",
+    "puppet\\modules\\dashboard\\templates\\logrotate.erb": "7ad6b5f89c991998355a3bcbed2a640c",
+    "puppet\\modules\\baseconfig\\manifests\\init.pp": "714d73d98d1f2565e8b5950da17df4ec",
+    "puppet\\modules\\dashboard\\templates\\database.yml.erb": "db8331f57a341ecc504a21567cab26ef",
+    "puppet\\modules\\dashboard\\manifests\\passenger.pp": "2b2c07fa12aa32aac35537e3ea02665e",
+    "Modulefile": "d0bee0dbacf1ee518d5a509256a10448",
+    "Vagrantfile": "b134038fce70ed94aa14733c4fb7e784",
+    "puppet\\modules\\dashboard\\manifests\\params.pp": "92f657a5bb66b05d2bc1c3a8299792af",
+    "puppet\\modules\\dashboard\\manifests\\init.pp": "3a159714adb01c8dc2df19e91e57ef45",
+    "puppet\\manifests\\site.pp": "3265a813de983f9db77fd83ae0b1dcde",
+    "puppet\\modules\\dashboard\\templates\\passenger-vhost.erb": "94bfef1629f2d106145dcfc83f6acaa7"
+  },
+  "dependencies": [],
+  "description": "",
+  "license": "",
+  "name": "coetzeer-puppetsuite",
+  "project_page": "",
+  "source": "",
+  "summary": "",
+  "types": [],
+  "version": "0.1.0"
+}
