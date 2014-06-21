@@ -1,10 +1,10 @@
 # create a new run stage to ensure certain modules are included first
-stage { 'pre': before => Stage['main'] }
+# stage { 'pre': before => Stage['main'] }
 
 # add the baseconfig module to the new 'pre' run stage
-class { 'baseconfig':
-  stage => 'pre'
-}
+# class { 'baseconfig':
+#  stage => 'pre'
+#}
 
 # all boxes get the base config
 include baseconfig
@@ -12,20 +12,28 @@ include baseconfig
 node 'puppet' {
   package { 'puppet-server': }
 
-  class { 'puppetdb::master::config':
-    puppetdb_server => 'master',
-    puppetdb_port   => '8080',
-    require         => Package['puppet-server'],
+  service { "puppetmaster":
+    ensure => "running",
+    enable => true,
   }
 
-  class { 'puppetdb':
-    listen_address       => '0.0.0.0',
-    ssl_listen_address   => '0.0.0.0',
-    listen_port          => '8080',
-    ssl_listen_port      => '8081',
-    open_listen_port     => true,
-    open_ssl_listen_port => true,
-    disable_ssl          => false,
+  ini_setting { "autosign":
+    ensure  => present,
+    path    => '/etc/puppet/puppet.conf',
+    section => 'master',
+    setting => 'autosign',
+    value   => true,
+    notify  => Service["puppetmaster"],
+  }
+
+  cron { 'sync_manifests':
+    command => 'cp -R -f -u /vagrant/puppet/manifests/* /etc/puppet/manifests/',
+    minute  => '*/1',
+  }
+  
+  cron { 'sync_modules':
+    command => 'cp -R -u -f /vagrant/puppet/modules/* /etc/puppet/modules',
+    minute  => '*/1',
   }
 
 }
@@ -33,19 +41,25 @@ node 'puppet' {
 node 'master1' {
   package { 'puppet-server': }
 
+  service { "puppetmaster": ensure => "running", }
+
   class { 'puppetdb::master::config': puppetdb_server => 'puppetdb', }
 }
 
 node 'master2' {
   package { 'puppet-server': }
 
+  service { "puppetmaster": ensure => "running", }
+
   class { 'puppetdb::master::config': puppetdb_server => 'puppetdb', }
 }
 
 node 'cacert1' {
+  package { 'puppet-server': }
 }
 
 node 'cacert2' {
+  package { 'puppet-server': }
 }
 
 node 'puppetdb-postgres' {
