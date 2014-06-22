@@ -7,7 +7,7 @@ url      = 'http://puppet-vagrant-boxes.puppetlabs.com/centos-65-x64-virtualbox-
 
 
 nodes = [
-  #{ :hostname => 'puppet',     			:ip => '192.168.0.31', :box => box, :ram => 512, :ssh_port => 2201 },
+  #{ :hostname => 'puppet',     			:ip => '192.168.0.31', :box => box, :ram => 512, :ssh_port => 2211 },
   { :hostname => 'puppetdb-postgres',   :ip => '192.168.0.36', :box => box, :ram => 512, :ssh_port => 2216 },
   { :hostname => 'puppetdb', 			:ip => '192.168.0.37', :box => box, :ram => 512, :ssh_port => 2217 },
   { :hostname => 'dashboard',     		:ip => '192.168.0.38', :box => box, :ram => 512, :ssh_port => 2218 },
@@ -34,7 +34,7 @@ Vagrant.configure("2") do |config|
     
     config.vm.provision "shell", path: "provision.sh"
 	config.vm.network "private_network", ip: "192.168.0.31"
-	config.vm.network :forwarded_port, guest: 22, host: 2201
+	config.vm.network :forwarded_port, guest: 22, host: 2211
   end
 
 

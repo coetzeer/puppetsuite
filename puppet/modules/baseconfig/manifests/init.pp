@@ -4,37 +4,13 @@
 #
 class baseconfig {
 
+  class { 'apache':
+  }
 
-#  host {
-#    
-#    'puppet':
-#      ip => '192.168.0.31';
-#    
-#    'master1':
-#      ip => '192.168.0.32';
-#    
-#    'master2':
-#      ip => '192.168.0.33';
-#
-#    'cacert1':
-#      ip => '192.168.0.34';
-#
-#    'cacert2':
-#      ip => '192.168.0.35';
-#
-#    'puppetdb-postgres':
-#      ip => '192.168.0.36';
-#
-#    'puppetdb':
-#      ip => '192.168.0.37';
-#
-#    'dashboard':
-#      ip => '192.168.0.38';
-#
-#  }
-  
-    class { 'apache': }
-    package { 'mod-ssl': }
+  class { 'apache::mod::ssl':
+    ssl_compression => false,
+    ssl_options     => ['StdEnvVars'],
+  }
   
 
 }

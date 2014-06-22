@@ -10,74 +10,24 @@
 include baseconfig
 
 node 'puppet' {
-  package { 'puppet-server': }
-
-  package { 'puppetmaster-passenger': }
-
-  service { "puppetmaster":
-    ensure => "stopped ",
-    enable => false,
-  }
-
-  cron { 'sync_manifests':
-    command => 'cp -R -f -u /vagrant/puppet/manifests/* /etc/puppet/manifests/',
-    minute  => '*/1',
-  }
-
-  cron { 'sync_modules':
-    command => 'cp -R -u -f /vagrant/puppet/modules/* /etc/puppet/modules',
-    minute  => '*/1',
-  }
+  class { 'master': autosign => true, }
 
 }
 
 node 'master1' {
-  package { 'puppet-server': }
-
-  service { "puppetmaster": ensure => "running", }
-
-  class { 'puppetdb::master::config': puppetdb_server => 'puppetdb.coetzee.com', }
+  class { 'master':
+    autosign      => true,
+    puppetdb_host => 'puppetdb.coetzee.com',
+  }
 
 }
 
 node 'master2' {
-  package { 'puppet-server': }
-
-  package { 'puppetmaster-passenger': }
-
-  package { 'rubygems': ensure => latest, }
-
-  package { 'rack': ensure => latest, }
-
-  package { 'passenger': ensure => latest, }
-
-  service { "puppetmaster":
-    ensure => "running",
-    enable => true,
+  class { 'master':
+    autosign      => true,
+    puppetdb_host => 'puppetdb.coetzee.com',
   }
 
-  ini_setting { "autosign":
-    ensure  => present,
-    path    => '/etc/puppet/puppet.conf',
-    section => 'master',
-    setting => 'autosign',
-    value   => true,
-    notify  => Service["puppetmaster"],
-  }
-
-  cron { 'sync_manifests':
-    command => 'cp -R -f -u /vagrant/puppet/manifests/* /etc/puppet/manifests/',
-    minute  => '*/1',
-  }
-
-  cron { 'sync_modules':
-    command => 'cp -R -u -f /vagrant/puppet/modules/* /etc/puppet/modules',
-    minute  => '*/1',
-  }
-
-  class { 'puppetdb::master::config':
-    puppetdb_server => 'puppetdb.coetzee.com',
-  }
 }
 
 node 'cacert1' {
