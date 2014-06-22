@@ -34,6 +34,7 @@ class baseconfig {
 #  }
   
     class { 'apache': }
+    package { 'mod-ssl': }
   
 
 }

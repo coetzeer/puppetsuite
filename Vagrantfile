@@ -8,13 +8,13 @@ url      = 'http://puppet-vagrant-boxes.puppetlabs.com/centos-65-x64-virtualbox-
 
 nodes = [
   #{ :hostname => 'puppet',     			:ip => '192.168.0.31', :box => box, :ram => 512, :ssh_port => 2201 },
-  { :hostname => 'puppetdb-postgres',   :ip => '192.168.0.36', :box => box, :ram => 512, :ssh_port => 2206 },
-  { :hostname => 'puppetdb', 			:ip => '192.168.0.37', :box => box, :ram => 512, :ssh_port => 2207 },
-  { :hostname => 'dashboard',     		:ip => '192.168.0.38', :box => box, :ram => 512, :ssh_port => 2208 },
-  { :hostname => 'master1',    			:ip => '192.168.0.32', :box => box, :ram => 512, :ssh_port => 2202 },
-  { :hostname => 'master2',    			:ip => '192.168.0.33', :box => box, :ram => 512, :ssh_port => 2203 },
-  { :hostname => 'cacert1',    			:ip => '192.168.0.34', :box => box, :ram => 512, :ssh_port => 2204 },
-  { :hostname => 'cacert2',    			:ip => '192.168.0.35', :box => box, :ram => 512, :ssh_port => 2205 },
+  { :hostname => 'puppetdb-postgres',   :ip => '192.168.0.36', :box => box, :ram => 512, :ssh_port => 2216 },
+  { :hostname => 'puppetdb', 			:ip => '192.168.0.37', :box => box, :ram => 512, :ssh_port => 2217 },
+  { :hostname => 'dashboard',     		:ip => '192.168.0.38', :box => box, :ram => 512, :ssh_port => 2218 },
+  { :hostname => 'master1',    			:ip => '192.168.0.32', :box => box, :ram => 512, :ssh_port => 2212 },
+  { :hostname => 'master2',    			:ip => '192.168.0.33', :box => box, :ram => 512, :ssh_port => 2213 },
+  { :hostname => 'cacert1',    			:ip => '192.168.0.34', :box => box, :ram => 512, :ssh_port => 2214 },
+  { :hostname => 'cacert2',    			:ip => '192.168.0.35', :box => box, :ram => 512, :ssh_port => 2215 },
 ]
 
 Vagrant.configure("2") do |config|
