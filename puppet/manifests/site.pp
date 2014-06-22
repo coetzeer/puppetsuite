@@ -49,7 +49,11 @@ node 'puppetdb-postgres' {
 }
 
 node 'puppetdb' {
-  class { 'puppetdb::server': database_host => 'puppetdb-postgres', }
+  class { 'puppetdb::server':
+    database_host  => 'puppetdb-postgres',
+    listen_address => '0.0.0.0',
+    ssl_listen_address => '0.0.0.0',
+  }
 }
 
 node 'dashboard' {

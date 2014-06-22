@@ -83,34 +83,37 @@ class master ($autosign = true, $puppetdb_host = undef) {
     creates => '/root/passenger-install-apache2-module.created',
   }
 
-#    apache::vhost { 'passenger vhost':
-#      servername      => 'puppet',
-#      port            => '8140',
-#      docroot         => '/etc/puppet/rack/public',
-#      #additional_includes => ['',''],
-#      directories     => [{
-#          path              => '/etc/puppet/rack/public',
-#          passenger_enabled => 'on',
-#        }
-#        ,],
-#      custom_fragment => '
-#   LoadModule passenger_module /usr/lib/ruby/gems/1.8/gems/passenger-4.0.45/buildout/apache2/mod_passenger.so
-#   <IfModule mod_passenger.c>
-#     PassengerRoot /usr/lib/ruby/gems/1.8/gems/passenger-4.0.45
-#     PassengerDefaultRuby /usr/bin/ruby
-#   </IfModule>
-#  ',
-#    }
+  #    apache::vhost { 'passenger vhost':
+  #      servername      => 'puppet',
+  #      port            => '8140',
+  #      docroot         => '/etc/puppet/rack/public',
+  #      #additional_includes => ['',''],
+  #      directories     => [{
+  #          path              => '/etc/puppet/rack/public',
+  #          passenger_enabled => 'on',
+  #        }
+  #        ,],
+  #      custom_fragment => '
+  #   LoadModule passenger_module /usr/lib/ruby/gems/1.8/gems/passenger-4.0.45/buildout/apache2/mod_passenger.so
+  #   <IfModule mod_passenger.c>
+  #     PassengerRoot /usr/lib/ruby/gems/1.8/gems/passenger-4.0.45
+  #     PassengerDefaultRuby /usr/bin/ruby
+  #   </IfModule>
+  #  ',
+  #    }
 
   # /usr/share/puppet/ext/rack/example-passenger-vhost.conf
 
-file { [ "/usr/share/puppet/rack/puppetmasterd/", "/usr/share/puppet/rack/puppetmasterd/public",
-         "/usr/share/puppet/rack/puppetmasterd/tmp"]:
+  file { [
+    "/usr/share/puppet/rack",
+    "/usr/share/puppet/rack/puppetmasterd/",
+    "/usr/share/puppet/rack/puppetmasterd/public",
+    "/usr/share/puppet/rack/puppetmasterd/tmp"]:
     owner  => "root",
     group  => "root",
     mode   => 755,
     ensure => "directory",
-}
+  }
 
   file { '/usr/share/puppet/rack/puppetmasterd/config.ru':
     ensure => present,
@@ -121,12 +124,12 @@ file { [ "/usr/share/puppet/rack/puppetmasterd/", "/usr/share/puppet/rack/puppet
   }
 
   file { '/etc/httpd/conf.d/puppetmaster.conf':
-    ensure => present,
-    #source => "/usr/share/puppet/ext/rack/example-passenger-vhost.conf",
+    ensure  => present,
+    # source => "/usr/share/puppet/ext/rack/example-passenger-vhost.conf",
     content => template('master/passenger-vhost.erb'),
-    owner  => "root",
-    group  => "root",
-    mode   => 644,
+    owner   => "root",
+    group   => "root",
+    mode    => 644,
   }
 
 }
