@@ -104,20 +104,20 @@ class master ($autosign = true, $puppetdb_host = undef) {
 
   # /usr/share/puppet/ext/rack/example-passenger-vhost.conf
 
-file { [ "/etc/puppet/rack", "/etc/puppet/rack/public",
-         "/etc/puppet/rack/tmp"]:
-    owner  => "puppet",
-    group  => "puppet",
-    mode   => 750,
+file { [ "/usr/share/puppet/rack/puppetmasterd/", "/usr/share/puppet/rack/puppetmasterd/public",
+         "/usr/share/puppet/rack/puppetmasterd/tmp"]:
+    owner  => "root",
+    group  => "root",
+    mode   => 755,
     ensure => "directory",
 }
 
-  file { '/etc/puppet/rack/config.ru':
+  file { '/usr/share/puppet/rack/puppetmasterd/config.ru':
     ensure => present,
     source => "/usr/share/puppet/ext/rack/config.ru",
     owner  => "puppet",
     group  => "puppet",
-    mode   => 750,
+    mode   => 755,
   }
 
   file { '/etc/httpd/conf.d/puppetmaster.conf':

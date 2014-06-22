@@ -40,10 +40,10 @@
 		RequestHeader set X-Client-Verify %{SSL_CLIENT_VERIFY}e
 		PassengerEnabled On
 		
-		DocumentRoot /etc/puppet/rack/public/
+		DocumentRoot /usr/share/puppet/rack/puppetmasterd/
         RackBaseURI /
 			
-			<Directory /etc/puppet/rack/public/>
+			<Directory /usr/share/puppet/rack/puppetmasterd/>
 				Options None
 				AllowOverride None
 				Order Allow,Deny
