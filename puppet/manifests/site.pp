@@ -57,6 +57,9 @@ node 'puppetdb' {
 }
 
 node 'dashboard' {
+  
+  #TODO: get this working with passenger
+  #http://docs.puppetlabs.com/dashboard/passenger.html
   class { 'dashboard':
     dashboard_ensure   => 'present',
     dashboard_user     => 'puppet-dbuser',
@@ -70,7 +73,7 @@ node 'dashboard' {
     passenger          => false,
   }
 
-  firewall { "3000 accept - puppetdb":
+  firewall { "3000 accept - puppetdashboard":
     port   => '3000',
     proto  => 'tcp',
     action => 'accept',

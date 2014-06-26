@@ -2,7 +2,7 @@
 #
 # install the bits needed for a master
 #
-class master ($autosign = true, $puppetdb_host = undef) {
+class master ($autosign = true, $puppetdb_host = undef, $puppetdashboard_enable = true) {
   package { 'puppet-server': }
 
   exec { 'start server':
@@ -22,16 +22,78 @@ class master ($autosign = true, $puppetdb_host = undef) {
       section => 'master',
       setting => 'autosign',
       value   => true,
-      notify  => Service["puppetmaster"],
+      notify  => [Service["puppetmaster"],Service['httpd']],
+      require => Package['puppet-server'],
+    }
+  }
+
+ ini_subsetting { 'puppet.conf/reports/puppetdb':
+      ensure               => present,
+      path                 => '/etc/puppet/puppet.conf',
+      section              => 'master',
+      setting              => 'reports',
+      subsetting           => 'store',
+      subsetting_separator => ','
+    }
+
+  if ($puppetdashboard_enable) {
+    ini_subsetting { 'puppet.conf/reports/puppetdb':
+      ensure               => present,
+      path                 => '/etc/puppet/puppet.conf',
+      section              => 'master',
+      setting              => 'reports',
+      subsetting           => 'http',
+      subsetting_separator => ','
+    }
+
+    ini_setting { "reporturl":
+      ensure  => present,
+      path    => '/etc/puppet/puppet.conf',
+      section => 'master',
+      setting => 'reporturl',
+      value   => 'http://dashboard.coetzee.com:3000/reports/upload',
+      notify  => [Service["puppetmaster"],Service['httpd']],
       require => Package['puppet-server'],
     }
   }
 
   if ($puppetdb_host) {
     class { 'puppetdb::master::config':
-      puppetdb_server => 'puppetdb.coetzee.com',
-      require         => Package['puppet-server'],
+      puppetdb_server         => 'puppetdb.coetzee.com',
+      manage_report_processor => true,
+      enable_reports          => true,
+      manage_routes           => true,
+      manage_storeconfigs     => true,
+      notify  => [Service["puppetmaster"],Service['httpd']],
     }
+
+    #    ini_setting { "storeconfigs":
+    #      ensure  => present,
+    #      path    => '/etc/puppet/puppet.conf',
+    #      section => 'master',
+    #      setting => 'storeconfigs',
+    #      value   => true,
+    #      notify  => Service["puppetmaster"],
+    #      require => Package['puppet-server'],
+    #    }
+    #
+    #    ini_setting { "storeconfigs_backend":
+    #      ensure  => present,
+    #      path    => '/etc/puppet/puppet.conf',
+    #      section => 'master',
+    #      setting => 'storeconfigs_backend',
+    #      value   => 'puppetdb',
+    #      notify  => Service["puppetmaster"],
+    #      require => Package['puppet-server'],
+    #    }
+    #
+    #    file { '/etc/puppet/routes.yaml':
+    #      ensure  => present,
+    #      content => template('master/routes-yaml.erb'),
+    #      owner   => "puppet",
+    #      group   => "puppet",
+    #      mode    => 644,
+    #    }
   }
 
   cron { 'sync_manifests':
