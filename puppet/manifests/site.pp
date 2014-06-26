@@ -7,10 +7,20 @@
 #}
 
 # all boxes get the base config
+
+#https://forge.puppetlabs.com/nibalizer/puppetboard
+
+
 include baseconfig
 
 node 'puppet' {
-  class { 'master': autosign => true, }
+  class { 'master':
+    autosign      => true,
+    master_port   => 8141,
+    balancer_port => 8140,
+    load_balancer => true,
+    part_of_cluster => true,
+  }
 
 }
 
@@ -18,6 +28,8 @@ node 'master1' {
   class { 'master':
     autosign      => true,
     puppetdb_host => 'puppetdb.coetzee.com',
+    master_port   => 8140,
+    part_of_cluster => true,
   }
 
 }
@@ -26,6 +38,8 @@ node 'master2' {
   class { 'master':
     autosign      => true,
     puppetdb_host => 'puppetdb.coetzee.com',
+    master_port   => 8140,
+    part_of_cluster => true,
   }
 
 }
@@ -50,16 +64,15 @@ node 'puppetdb-postgres' {
 
 node 'puppetdb' {
   class { 'puppetdb::server':
-    database_host  => 'puppetdb-postgres',
-    listen_address => '0.0.0.0',
+    database_host      => 'puppetdb-postgres',
+    listen_address     => '0.0.0.0',
     ssl_listen_address => '0.0.0.0',
   }
 }
 
 node 'dashboard' {
-  
-  #TODO: get this working with passenger
-  #http://docs.puppetlabs.com/dashboard/passenger.html
+  # TODO: get this working with passenger
+  # http://docs.puppetlabs.com/dashboard/passenger.html
   class { 'dashboard':
     dashboard_ensure   => 'present',
     dashboard_user     => 'puppet-dbuser',

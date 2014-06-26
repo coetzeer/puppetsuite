@@ -30,7 +30,7 @@ Vagrant.configure("2") do |config|
     	puppet.module_path = 'puppet/modules'
     	#puppet.hiera_config_path = "hiera.yaml"
     	puppet.working_directory = "/vagrant"
-    	puppet.options = " --debug --verbose"
+    	#puppet.options = " --debug --verbose"
     end
     
     config.vm.provision "shell", path: "provision.sh"

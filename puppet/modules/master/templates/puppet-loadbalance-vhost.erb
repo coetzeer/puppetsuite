@@ -1,10 +1,18 @@
-	Listen <%= @master_port %>
-	<VirtualHost *:<%= @master_port %>>
+#	<Proxy balancer://puppetmaster>
+#		BalancerMember http://localhost:<%= @master_port %>
+#		BalancerMember http://master1.coetzee.com:8140
+#		BalancerMember http://master2.coetzee.com:8140
+#	</Proxy>
+	
+	Listen <%= @balancer_port %>
+	<VirtualHost *:<%= @balancer_port %>>
 	    SSLEngine On
 	
 	    # Only allow high security cryptography. Alter if needed for compatibility.
 	    SSLProtocol             All -SSLv2
+	    # SSLCipherSuite SSLv2:-LOW:-EXPORT:RC4+RSA
 	    SSLCipherSuite          HIGH:!ADH:RC4+RSA:-MEDIUM:-LOW:-EXP
+	    #SSLCipherSuite 			ALL:!ADH:RC4+RSA:+HIGH:+MEDIUM:-LOW:-SSLv2:-EXP
 	    SSLCertificateFile      /var/lib/puppet/ssl/certs/<%= @fqdn %>.pem
 	    SSLCertificateKeyFile   /var/lib/puppet/ssl/private_keys/<%= @fqdn %>.pem
 	    SSLCertificateChainFile /var/lib/puppet/ssl/ca/ca_crt.pem
@@ -25,21 +33,16 @@
 	    RequestHeader set X-Client-DN %{SSL_CLIENT_S_DN}e
 	    RequestHeader set X-Client-Verify %{SSL_CLIENT_VERIFY}e
 	
-	    DocumentRoot /usr/share/puppet/rack/puppetmasterd/public
+		<Location />
+			SetHandler balancer-manager
+			Order allow,deny
+			Allow from all
+		</Location>
+
+		ProxyPass / balancer://puppetmaster/
+		ProxyPassReverse / balancer://puppetmaster/
+		ProxyPreserveHost On
 	
-	    <Directory /usr/share/puppet/rack/puppetmasterd/>
-	      Options None
-	      AllowOverride None
-	      # Apply the right behavior depending on Apache version.
-	      <IfVersion < 2.4>
-	        Order allow,deny
-	        Allow from all
-	      </IfVersion>
-	      <IfVersion >= 2.4>
-	        Require all granted
-	      </IfVersion>
-	    </Directory>
-	
-	    ErrorLog /var/log/httpd/<%= @fqdn %>_ssl_error.log
-	    CustomLog /var/log/httpd/<%= @fqdn %>_ssl_access.log combined
+	    ErrorLog /var/log/httpd/<%= @fqdn %>_balancer_error.log
+	    CustomLog /var/log/httpd/<%= @fqdn %>_balancer_access.log combined
 	</VirtualHost>

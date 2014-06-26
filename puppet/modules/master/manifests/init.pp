@@ -2,12 +2,20 @@
 #
 # install the bits needed for a master
 #
-class master ($autosign = true, $puppetdb_host = undef, $puppetdashboard_enable = true) {
+class master (
+  $autosign               = true,
+  $puppetdb_host          = undef,
+  $puppetdashboard_enable = true,
+  $master_port            = 8140,
+  $load_balancer          = false,
+  $balancer_port          = 8140,
+  $part_of_cluster        = false) {
   package { 'puppet-server': }
 
   exec { 'start server':
     command => 'service puppetmaster start',
     path    => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin',
+    creates => "/var/lib/puppet/ssl/private_keys/${::fqdn}.pem"
   } ->
   service { "puppetmaster":
     ensure  => "stopped",
@@ -22,22 +30,22 @@ class master ($autosign = true, $puppetdb_host = undef, $puppetdashboard_enable 
       section => 'master',
       setting => 'autosign',
       value   => true,
-      notify  => [Service["puppetmaster"],Service['httpd']],
+      notify  => [Service["puppetmaster"], Service['httpd']],
       require => Package['puppet-server'],
     }
   }
 
- ini_subsetting { 'puppet.conf/reports/puppetdb':
-      ensure               => present,
-      path                 => '/etc/puppet/puppet.conf',
-      section              => 'master',
-      setting              => 'reports',
-      subsetting           => 'store',
-      subsetting_separator => ','
-    }
+  ini_subsetting { 'puppet.conf/reports/master/reports/store':
+    ensure               => present,
+    path                 => '/etc/puppet/puppet.conf',
+    section              => 'master',
+    setting              => 'reports',
+    subsetting           => 'store',
+    subsetting_separator => ','
+  }
 
   if ($puppetdashboard_enable) {
-    ini_subsetting { 'puppet.conf/reports/puppetdb':
+    ini_subsetting { 'puppet.conf/reports/master/reports/http':
       ensure               => present,
       path                 => '/etc/puppet/puppet.conf',
       section              => 'master',
@@ -52,7 +60,7 @@ class master ($autosign = true, $puppetdb_host = undef, $puppetdashboard_enable 
       section => 'master',
       setting => 'reporturl',
       value   => 'http://dashboard.coetzee.com:3000/reports/upload',
-      notify  => [Service["puppetmaster"],Service['httpd']],
+      notify  => [Service["puppetmaster"], Service['httpd']],
       require => Package['puppet-server'],
     }
   }
@@ -64,7 +72,7 @@ class master ($autosign = true, $puppetdb_host = undef, $puppetdashboard_enable 
       enable_reports          => true,
       manage_routes           => true,
       manage_storeconfigs     => true,
-      notify  => [Service["puppetmaster"],Service['httpd']],
+      notify                  => [Service["puppetmaster"], Service['httpd']],
     }
 
     #    ini_setting { "storeconfigs":
@@ -145,27 +153,6 @@ class master ($autosign = true, $puppetdb_host = undef, $puppetdashboard_enable 
     creates => '/root/passenger-install-apache2-module.created',
   }
 
-  #    apache::vhost { 'passenger vhost':
-  #      servername      => 'puppet',
-  #      port            => '8140',
-  #      docroot         => '/etc/puppet/rack/public',
-  #      #additional_includes => ['',''],
-  #      directories     => [{
-  #          path              => '/etc/puppet/rack/public',
-  #          passenger_enabled => 'on',
-  #        }
-  #        ,],
-  #      custom_fragment => '
-  #   LoadModule passenger_module /usr/lib/ruby/gems/1.8/gems/passenger-4.0.45/buildout/apache2/mod_passenger.so
-  #   <IfModule mod_passenger.c>
-  #     PassengerRoot /usr/lib/ruby/gems/1.8/gems/passenger-4.0.45
-  #     PassengerDefaultRuby /usr/bin/ruby
-  #   </IfModule>
-  #  ',
-  #    }
-
-  # /usr/share/puppet/ext/rack/example-passenger-vhost.conf
-
   file { [
     "/usr/share/puppet/rack",
     "/usr/share/puppet/rack/puppetmasterd/",
@@ -185,13 +172,59 @@ class master ($autosign = true, $puppetdb_host = undef, $puppetdashboard_enable 
     mode   => 755,
   }
 
-  file { '/etc/httpd/conf.d/puppetmaster.conf':
+  file { '/etc/httpd/conf.d/passenger.conf':
     ensure  => present,
-    # source => "/usr/share/puppet/ext/rack/example-passenger-vhost.conf",
-    content => template('master/passenger-vhost.erb'),
+    content => template('master/passenger.erb'),
     owner   => "root",
     group   => "root",
     mode    => 644,
   }
 
+  if ($part_of_cluster) {
+    file { '/etc/httpd/conf.d/puppetmaster.conf':
+      ensure  => present,
+      content => template('master/passenger-vhost-with-balancer.erb'),
+      owner   => "root",
+      group   => "root",
+      mode    => 644,
+    }
+  } else {
+    file { '/etc/httpd/conf.d/puppetmaster.conf':
+      ensure  => present,
+      content => template('master/passenger-vhost.erb'),
+      owner   => "root",
+      group   => "root",
+      mode    => 644,
+    }
+  }
+
+  if ($load_balancer) {
+    apache::balancer { 'puppetmaster': }
+
+    apache::balancermember { "${::fqdn}-puppetmaster":
+      balancer_cluster => 'puppetmaster',
+      url              => "http://${::fqdn}:${master_port}",
+      options          => ['ping=5', 'disablereuse=on', 'retry=5', 'ttl=120'],
+    }
+
+    apache::balancermember { "master1.coetzee.com-puppetmaster":
+      balancer_cluster => 'puppetmaster',
+      url              => "http://master1.coetzee.com:8140",
+      options          => ['ping=5', 'disablereuse=on', 'retry=5', 'ttl=120'],
+    }
+
+    apache::balancermember { "master2.coetzee.com-puppetmaster":
+      balancer_cluster => 'puppetmaster',
+      url              => "http://master2.coetzee.com:8140",
+      options          => ['ping=5', 'disablereuse=on', 'retry=5', 'ttl=120'],
+    }
+
+    file { '/etc/httpd/conf.d/puppetmaster_proxy.conf':
+      ensure  => present,
+      content => template('master/puppet-loadbalance-vhost.erb'),
+      owner   => "root",
+      group   => "root",
+      mode    => 644,
+    }
+  }
 }

@@ -1,0 +1,27 @@
+	Listen <%= @master_port %>
+	<VirtualHost *:<%= @master_port %>>
+	    SSLEngine off
+	
+		# Obtain Authentication Information from Client Request Headers
+		SetEnvIf X-Client-Verify "(.*)" SSL_CLIENT_VERIFY=$1
+		SetEnvIf X-SSL-Client-DN "(.*)" SSL_CLIENT_S_DN=$1
+		#PassengerEnabled On
+	    
+	    DocumentRoot /usr/share/puppet/rack/puppetmasterd/public
+	
+	    <Directory /usr/share/puppet/rack/puppetmasterd/>
+	      Options None
+	      AllowOverride None
+	      # Apply the right behavior depending on Apache version.
+	      <IfVersion < 2.4>
+	        Order allow,deny
+	        Allow from all
+	      </IfVersion>
+	      <IfVersion >= 2.4>
+	        Require all granted
+	      </IfVersion>
+	    </Directory>
+	
+	    ErrorLog /var/log/httpd/<%= @fqdn %>_ssl_error.log
+	    CustomLog /var/log/httpd/<%= @fqdn %>_ssl_access.log combined
+	</VirtualHost>
