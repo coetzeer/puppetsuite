@@ -1,0 +1,5 @@
+<Proxy balancer://puppetmasterca>
+ BalancerMember http://cacert1.coetzee.com:<%= @balancee_master_port %> ping=5 disablereuse=on retry=5 ttl=120
+ BalancerMember http://cacert2.coetzee.com:<%= @balancee_master_port %> ping=5 disablereuse=on retry=5 ttl=120
+ BalancerMember http://puppet.coetzee.com:<%= @balancee_master_port %> ping=5 disablereuse=on retry=5 ttl=120 status=+H
+</Proxy>

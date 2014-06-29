@@ -23,7 +23,9 @@ install_module mysql puppetlabs-mysql
 install_module apache puppetlabs-apache
 install_module puppetdb puppetlabs-puppetdb
 install_module dashboard puppetlabs-dashboard
-install_module ntp puppetlabs-ntp 
+install_module ntp puppetlabs-ntp
+install_module phppgadmin knowshan-phppgadmin
+
 add_host puppet 192.168.0.31
 add_host master1 192.168.0.32
 add_host master2 192.168.0.33

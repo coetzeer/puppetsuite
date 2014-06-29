@@ -33,6 +33,7 @@ TODO:
 ** travis
 * get reports to work
 * demonstrate that puppetdb is working
+* more elegant generation of ssh keys = http://www.masterzen.fr/2009/08/08/storeconfigs-use-cases/
 
 
 Ongoing problems:

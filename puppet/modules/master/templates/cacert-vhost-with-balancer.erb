@@ -1,0 +1,48 @@
+	Listen <%= @balancee_master_port %>
+	<VirtualHost *:<%= @balancee_master_port %>>
+	    SSLEngine On
+	
+	    # Only allow high security cryptography. Alter if needed for compatibility.
+	    SSLProtocol             All -SSLv2
+	    SSLCipherSuite          HIGH:!ADH:RC4+RSA:-MEDIUM:-LOW:-EXP
+	    SSLCertificateFile      /var/lib/puppet/ssl/certs/<%= @fqdn %>.pem
+	    SSLCertificateKeyFile   /var/lib/puppet/ssl/private_keys/<%= @fqdn %>.pem
+	    SSLCertificateChainFile /var/lib/puppet/ssl/ca/ca_crt.pem
+	    SSLCACertificateFile    /var/lib/puppet/ssl/ca/ca_crt.pem
+	    SSLCARevocationFile     /var/lib/puppet/ssl/ca/ca_crl.pem
+	    #SSLCARevocationCheck 	chain
+	    SSLVerifyClient         optional
+	    SSLVerifyDepth          1
+	    SSLOptions              +StdEnvVars +ExportCertData
+	    
+	    DocumentRoot /usr/share/puppet/rack/puppetmasterd/public
+	
+	    <Directory /usr/share/puppet/rack/puppetmasterd/>
+	      Options None
+	      AllowOverride None
+	      # Apply the right behavior depending on Apache version.
+	      <IfVersion < 2.4>
+	        Order allow,deny
+	        Allow from all
+	      </IfVersion>
+	      <IfVersion >= 2.4>
+	        Require all granted
+	      </IfVersion>
+	    </Directory>
+	
+		# And the passenger performance tuning settings:
+		PassengerHighPerformance On
+	
+		# Set this to about 1.5 times the number of CPU cores in your master:
+		PassengerMaxPoolSize 6
+	
+		# Recycle master processes after they service 1000 requests
+		PassengerMaxRequests 1000
+
+		# Stop processes if they sit idle for 10 minutes
+		PassengerPoolIdleTime 600
+	
+	
+	    ErrorLog /var/log/httpd/<%= @fqdn %>_balanced_error.log
+	    CustomLog /var/log/httpd/<%= @fqdn %>_balanced_access.log combined
+	</VirtualHost>

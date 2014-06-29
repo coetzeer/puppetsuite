@@ -1,18 +1,10 @@
-#	<Proxy balancer://puppetmaster>
-#		BalancerMember http://localhost:<%= @master_port %>
-#		BalancerMember http://master1.coetzee.com:8140
-#		BalancerMember http://master2.coetzee.com:8140
-#	</Proxy>
-	
 	Listen <%= @balancer_port %>
 	<VirtualHost *:<%= @balancer_port %>>
 	    SSLEngine On
 	
 	    # Only allow high security cryptography. Alter if needed for compatibility.
 	    SSLProtocol             All -SSLv2
-	    # SSLCipherSuite SSLv2:-LOW:-EXPORT:RC4+RSA
 	    SSLCipherSuite          HIGH:!ADH:RC4+RSA:-MEDIUM:-LOW:-EXP
-	    #SSLCipherSuite 			ALL:!ADH:RC4+RSA:+HIGH:+MEDIUM:-LOW:-SSLv2:-EXP
 	    SSLCertificateFile      /var/lib/puppet/ssl/certs/<%= @fqdn %>.pem
 	    SSLCertificateKeyFile   /var/lib/puppet/ssl/private_keys/<%= @fqdn %>.pem
 	    SSLCertificateChainFile /var/lib/puppet/ssl/ca/ca_crt.pem
@@ -38,6 +30,11 @@
 			Order allow,deny
 			Allow from all
 		</Location>
+		
+		# Ordering of ProxyPass directives is important
+		# Direct all Puppet agent CA requests to a specific set of workers.
+		ProxyPassMatch ^(/.*?)/(certificate.*?)/(.*)$ balancer://puppetmasterca
+		ProxyPassReverse ^(/.*?)/(certificate.*?)/(.*)$ balancer://puppetmasterca
 
 		ProxyPass / balancer://puppetmaster/
 		ProxyPassReverse / balancer://puppetmaster/

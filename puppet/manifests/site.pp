@@ -23,7 +23,7 @@ node 'master1' {
     autosign             => true,
     balancee_master_port => 8142,
     puppetdb_host        => 'puppetdb.coetzee.com',
-    master_port          => 8140,
+    master_port          => 8141,
     part_of_cluster      => true,
     puppetdash_host      => 'dashboard.coetzee.com',
   }
@@ -35,7 +35,7 @@ node 'master2' {
     autosign             => true,
     balancee_master_port => 8142,
     puppetdb_host        => 'puppetdb.coetzee.com',
-    master_port          => 8140,
+    master_port          => 8141,
     part_of_cluster      => true,
     puppetdash_host      => 'dashboard.coetzee.com',
   }
@@ -43,17 +43,32 @@ node 'master2' {
 }
 
 node 'cacert1' {
-  package { 'puppet-server': }
+  class { 'master':
+    autosign             => true,
+    balancee_master_port => 8142,
+    puppetdb_host        => 'puppetdb.coetzee.com',
+    master_port          => 8141,
+    part_of_cluster      => true,
+    puppetdash_host      => 'dashboard.coetzee.com',
+  }
 }
 
 node 'cacert2' {
-  package { 'puppet-server': }
+  class { 'master':
+    autosign             => true,
+    balancee_master_port => 8142,
+    puppetdb_host        => 'puppetdb.coetzee.com',
+    master_port          => 8141,
+    part_of_cluster      => true,
+    puppetdash_host      => 'dashboard.coetzee.com',
+  }
 }
 
 node 'puppetdb-postgres' {
   # Here we install and configure postgres and the puppetdb
   # database instance, and tell postgres that it should
   # listen for connections to the hostname ‘puppetdb-postgres’
+  include phppgadmin
   class { 'puppetdb::database::postgresql':
     listen_addresses => 'puppetdb-postgres',
   }

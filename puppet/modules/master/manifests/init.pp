@@ -76,21 +76,28 @@ class master (
       require => Package['passenger'],
     }
 
-  #-P - --partial --progress
-  #-H - preserve hardlinks
-  #-a - archive
-  #-z - compress
-  #-e - rsync command
+    # -P - --partial --progress
+    # -H - preserve hardlinks
+    # -a - archive
+    # -z - compress
+    # -e - rsync command
+
+    $rsync_command = 'rsync -PHaze "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" puppet:/var/lib/puppet/ssl/ca /var/lib/puppet/ssl/'
+
+    exec { 'run_rsync':
+      command => $rsync_command,
+      path    => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin',
+      creates => "/var/lib/puppet/ssl/ca/ca_crt.pem"
+    }
 
     cron { 'sync_ca':
-      command => 'rsync -PHaze ssh /var/lib/puppet/ssl/ca puppet:/var/lib/puppet/ssl/',
+      command => "${rsync_command} | logger",
       minute  => '*/1',
     }
   } else {
     ssh_authorized_key { "root@${::fqdn}":
       ensure => 'present',
       key    => 'AAAAB3NzaC1kc3MAAACBAMFdCNN83n6FwSUaMz/iE4uV8WMSypiPzuxi47MdmSSU4qpVoSqwOPH5ngrwxnW7J2zKpmtpefGsCZ/ATNhYhb09ls/IqwWP9nsJHn7/yudlYMnv34LKmvJZTyUAO2ywnSVehHSzF/YO3YpXPy9N+iEmK0st9mpSzjVeyVkMgvcfAAAAFQCCaGlYFyTXFSccx8BMOe4ZuJCCrwAAAIEAvgk4t6+5LvE5+mEE5OFf0jC2UEN9kqsxdLayX0HrDWMactnXma0w11lYw2xBd0uiU/k8R78Upj79jdyC9u5YYT4W18HWtoQoKoEAPz6/GqpysUYvAt7GAjISZGeaKWvyQWpiAZ+PRjP1dIdzYVQHpEntXcUZDnSxtGkScG3YRrgAAACAVcjcz7pPHP89VFEpIM1niOmFHWBetk1z/pElrTwFbWZoTXrB3/iwK5a6p4R5OaRQl6Vn3fm/CcmNKbF7rqqqacIpKlJJGf9MD8NrKKQepoPQkKnEafb/RxoPcBcHY+LfjEAQxSaMSAh/KmDIMh2Toa/zH8EjR9sdRoF/HbHtOZ4=',
-      # target   => ,
       type   => 'ssh-dss',
       user   => 'root'
     }
@@ -122,6 +129,10 @@ class master (
     class { 'master::apache_load_balancer':
       balancee_master_port => $balancee_master_port,
       balancer_port        => $balancer_port,
+    }
+
+    class { 'master::apache_load_balancer_ca':
+      balancee_master_port => $balancee_master_port,
     }
 
   }
