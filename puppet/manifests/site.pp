@@ -2,6 +2,7 @@
 stage { 'pre': before => Stage['main'] }
 
 include baseconfig
+include '::ntp'
 
 node 'puppet' {
   class { 'master':
