@@ -1,45 +1,42 @@
 # create a new run stage to ensure certain modules are included first
-# stage { 'pre': before => Stage['main'] }
-
-# add the baseconfig module to the new 'pre' run stage
-# class { 'baseconfig':
-#  stage => 'pre'
-#}
-
-# all boxes get the base config
-
-#https://forge.puppetlabs.com/nibalizer/puppetboard
-
+stage { 'pre': before => Stage['main'] }
 
 include baseconfig
 
 node 'puppet' {
   class { 'master':
-    autosign      => true,
-    master_port   => 8141,
-    balancer_port => 8140,
-    load_balancer => true,
-    part_of_cluster => true,
+    autosign             => true,
+    master_port          => 8141,
+    balancer_port        => 8140,
+    balancee_master_port => 8142,
+    load_balancer        => true,
+    part_of_cluster      => true,
+    puppetdash_host      => 'dashboard.coetzee.com',
+    puppetdb_host        => 'puppetdb.coetzee.com',
   }
 
 }
 
 node 'master1' {
   class { 'master':
-    autosign      => true,
-    puppetdb_host => 'puppetdb.coetzee.com',
-    master_port   => 8140,
-    part_of_cluster => true,
+    autosign             => true,
+    balancee_master_port => 8142,
+    puppetdb_host        => 'puppetdb.coetzee.com',
+    master_port          => 8140,
+    part_of_cluster      => true,
+    puppetdash_host      => 'dashboard.coetzee.com',
   }
 
 }
 
 node 'master2' {
   class { 'master':
-    autosign      => true,
-    puppetdb_host => 'puppetdb.coetzee.com',
-    master_port   => 8140,
-    part_of_cluster => true,
+    autosign             => true,
+    balancee_master_port => 8142,
+    puppetdb_host        => 'puppetdb.coetzee.com',
+    master_port          => 8140,
+    part_of_cluster      => true,
+    puppetdash_host      => 'dashboard.coetzee.com',
   }
 
 }
