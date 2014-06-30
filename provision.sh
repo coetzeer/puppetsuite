@@ -33,4 +33,11 @@ add_host cacert1 192.168.0.34
 add_host cacert2 192.168.0.35       
 add_host puppetdb-postgres 192.168.0.36
 add_host puppetdb 192.168.0.37
-add_host dashboard 192.168.0.38      
+add_host dashboard 192.168.0.38
+add_host gitolite 192.168.0.28
+add_host gitlab 192.168.0.22
+add_host gitorious 192.168.0.23
+add_host reviewboard 192.168.0.24
+add_host cvs 192.168.0.21       
+add_host svn 192.168.0.26
+add_host hg 192.168.0.27

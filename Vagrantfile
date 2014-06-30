@@ -1,5 +1,5 @@
 #
-# Pulling out all the stops with cluster of seven Vagrant boxes.
+# Puppet master cluster
 #
 domain   = 'coetzee.com'
 box      =  'centos65-x86_64_3'
