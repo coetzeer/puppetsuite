@@ -13,7 +13,7 @@ node 'puppet' {
     load_balancer        => true,
     part_of_cluster      => true,
     puppetdash_host      => 'dashboard.coetzee.com',
-    #puppetdb_host        => 'puppetdb.coetzee.com',
+  # puppetdb_host        => 'puppetdb.coetzee.com',
   }
 
 }
@@ -67,10 +67,32 @@ node 'cacert2' {
 node 'puppetdb-postgres' {
   # Here we install and configure postgres and the puppetdb
   # database instance, and tell postgres that it should
-  # listen for connections to the hostname ‘puppetdb-postgres’
-  #include phppgadmin
+  # listen for connections to the hostname puppetdb-postgres
+
+  #  CentOS/RHEL 5, 32-Bit:
+  # wget http://yum.postgresql.org/9.1/redhat/rhel-5-i386/pgdg-centos91-9.1-4.noarch.rpm
+
+  # CentOS/RHEL 6, 32-Bit:
+  # wget http://yum.postgresql.org/9.1/redhat/rhel-6-i386/pgdg-centos91-9.1-4.noarch.rpm
+
+  # CentOS/RHEL 5, 64-Bit:
+  # wget http://yum.postgresql.org/9.1/redhat/rhel-5.0-x86_64/pgdg-centos91-9.1-4.noarch.rpm
+
+  # CentOS/RHEL 6, 64-Bit:
+  # wget http://yum.postgresql.org/9.1/redhat/rhel-6.3-x86_64/pgdg-centos91-9.1-4.noarch.rpm
+  # TODO: make this more portable
+  package { 'postgresql-repo':
+    source   => 'http://yum.postgresql.org/9.1/redhat/rhel-6.3-x86_64/pgdg-centos91-9.1-4.noarch.rpm',
+    ensure   => installed,
+    provider => 'rpm',
+  }
+
   class { 'puppetdb::database::postgresql':
     listen_addresses => 'puppetdb-postgres',
+  }
+
+  class { 'phppgadmin':
+    require => [Class['puppetdb::database::postgresql'], Package['postgresql-repo'],]
   }
 
 }
