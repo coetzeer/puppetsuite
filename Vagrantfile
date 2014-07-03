@@ -6,17 +6,17 @@ box      =  'centos65-x86_64_3'
 url      = 'file://C:\Users\raymond.coetzee\Dropbox\centos65-x86_64_3.box'
 
 adminnodes = [
-  { :hostname => 'puppet',     			:ip => '192.168.0.31', :box => box, :ram => 512, :ssh_port => 2211 },  
+  { :hostname => 'puppet',     			:ip => '192.168.2.31', :box => box, :ram => 512, :ssh_port => 2211 },  
 ]
 
 nodes = [ 
-  { :hostname => 'puppetdb-postgres',   :ip => '192.168.0.36', :box => box, :ram => 512, :ssh_port => 2216 },
-  { :hostname => 'puppetdb', 			:ip => '192.168.0.37', :box => box, :ram => 512, :ssh_port => 2217 },
-  { :hostname => 'dashboard',     		:ip => '192.168.0.38', :box => box, :ram => 512, :ssh_port => 2218 },
-  { :hostname => 'master1',    			:ip => '192.168.0.32', :box => box, :ram => 512, :ssh_port => 2212 },
-  { :hostname => 'master2',    			:ip => '192.168.0.33', :box => box, :ram => 512, :ssh_port => 2213 },
-  { :hostname => 'cacert1',    			:ip => '192.168.0.34', :box => box, :ram => 512, :ssh_port => 2214 },
-  { :hostname => 'cacert2',    			:ip => '192.168.0.35', :box => box, :ram => 512, :ssh_port => 2215 },
+  { :hostname => 'puppetdb-postgres',   	:ip => '192.168.2.36', :box => box, :ram => 512, :ssh_port => 2216 },
+  { :hostname => 'puppetdb', 			:ip => '192.168.2.37', :box => box, :ram => 512, :ssh_port => 2217 },
+  { :hostname => 'dashboard',     		:ip => '192.168.2.38', :box => box, :ram => 512, :ssh_port => 2218 },
+  { :hostname => 'master1',    			:ip => '192.168.2.32', :box => box, :ram => 512, :ssh_port => 2212 },
+  { :hostname => 'master2',    			:ip => '192.168.2.33', :box => box, :ram => 512, :ssh_port => 2213 },
+  { :hostname => 'cacert1',    			:ip => '192.168.2.34', :box => box, :ram => 512, :ssh_port => 2214 },
+  { :hostname => 'cacert2',    			:ip => '192.168.2.35', :box => box, :ram => 512, :ssh_port => 2215 },
 ]
 
 Vagrant.configure("2") do |config|
@@ -28,7 +28,8 @@ Vagrant.configure("2") do |config|
 	      node_config.vm.host_name = node[:hostname] + '.' + domain
 	      node_config.vm.hostname = node[:hostname] + '.' + domain
 	      config.vm.network "private_network", ip: node[:ip]
-		  config.ssh.guest_port = node[:ssh_port]
+	      config.ssh.guest_port = node[:ssh_port]
+	      config.vm.network :forwarded_port, guest: 22, host: node[:ssh_port]
 		  
 	      memory = node[:ram] ? node[:ram] : 256;
 	     
@@ -65,8 +66,9 @@ Vagrant.configure("2") do |config|
 	      node_config.vm.host_name = node[:hostname] + '.' + domain
 	      node_config.vm.hostname = node[:hostname] + '.' + domain
 	      config.vm.network "private_network", ip: node[:ip]
-		  config.ssh.guest_port = node[:ssh_port]
-		  
+ 	      config.ssh.guest_port = node[:ssh_port]
+	      config.vm.network :forwarded_port, guest: 22, host: node[:ssh_port]
+  
 	      memory = node[:ram] ? node[:ram] : 256;
 	     
 	     config.vm "virtualbox" do |v|
