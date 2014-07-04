@@ -1,0 +1,13 @@
+#!/bin/bash -ev
+HOSTNAME=`hostname`
+
+
+cd /var/lib/puppet/ssl
+DO_GIT=`git status | grep "nothing to commit" | wc -l`
+if [ $DO_GIT -eq 0 ];
+then
+	git pull puppet master
+	git add * 
+	git commit -m "cron commit from $HOSTNAME"
+	git push puppet
+fi

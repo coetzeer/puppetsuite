@@ -6,6 +6,14 @@ class master::setup_ssh () {
     ensure => "directory",
   }
 
+  file { '/root/.ssh/config':
+    ensure  => present,
+    content => template('master/ssh_options.erb'),
+    owner   => "root",
+    group   => "root",
+    mode    => 644,
+  }
+
   if ($::fqdn != 'puppet.coetzee.com') {
     file { '/root/.ssh/id_dsa.pub':
       ensure  => present,

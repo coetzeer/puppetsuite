@@ -1,37 +1,93 @@
 class master::sync_certs () {
-  package { 'unison227': }
+  #  package { 'unison227': }
 
   if ($::fqdn != 'puppet.coetzee.com') {
-    # -P - --partial --progress
-    # -H - preserve hardlinks
-    # -a - archive
-    # -z - compress
-    # -e - rsync command
+    exec { "git_init_puppet":
+      command => "/usr/bin/git init",
+      path    => "/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin",
+      cwd     => '/var/lib/puppet/ssl',
+      creates => "/var/lib/puppet/ssl/.git"
+    } ->
+    exec { "git_add_puppet":
+      command => "/usr/bin/git add *",
+      path    => "/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin",
+      cwd     => '/var/lib/puppet/ssl'
+    } ->
+    exec { "git_commit_puppet":
+      command => "/usr/bin/git commit -m \"first commit from puppet load balancer master bootstrap\"",
+      path    => "/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin",
+      cwd     => '/var/lib/puppet/ssl'
+    } ->
+    exec { "git_add_remote_branch":
+      command => "/usr/bin/git remote add puppet ssh://root@puppet.coetzee.com/root/certs/ssl.git",
+      path    => "/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin",
+      cwd     => '/var/lib/puppet/ssl',
+    } ->
+    exec { "git_pull_remote_branch":
+      command => "/usr/bin/git pull puppet master",
+      path    => "/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin",
+      cwd     => '/var/lib/puppet/ssl',
+    }
 
-    # $rsync_command = 'rsync -PHaze "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"  /var/lib/puppet/ssl/
-    # puppet:/var/lib/puppet/ssl/ca'
+    file { '/root/sync_certs':
+      ensure  => present,
+      content => template('master/sync_master_certs.erb'),
+      owner   => "root",
+      group   => "root",
+      mode    => 700,
+    }->
+    cron { 'sync_ca':
+      command => "/root/sync_certs 2>&1 | logger",
+      minute  => '*/2',
+    }
 
-    $rsync_command = 'unison -batch -log /var/log -logfile unison.log -sshargs "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" ssh://puppet.coetzee.com//var/lib/puppet/ssl/ca /var/lib/puppet/ssl/ca'
-
-    file { '/var/lib/puppet/ssl/ca/':
-      owner  => "puppet",
-      group  => "puppet",
+  } else {
+    exec { "git_init_puppet":
+      command => "/usr/bin/git init",
+      path    => "/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin",
+      cwd     => '/var/lib/puppet/ssl',
+      creates => "/var/lib/puppet/ssl/.git"
+    } ->
+    exec { "git_add_puppet":
+      command => "/usr/bin/git add *",
+      path    => "/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin",
+      cwd     => '/var/lib/puppet/ssl'
+    } ->
+    exec { "git_commit_puppet":
+      command => "/usr/bin/git commit -m \"first commit from puppet load balancer master bootstrap\"",
+      path    => "/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin",
+      cwd     => '/var/lib/puppet/ssl'
+    } ->
+    file { '/root/certs':
+      owner  => "root",
+      group  => "root",
       mode   => 755,
       ensure => "directory",
+    } ->
+    exec { "git_create_bare":
+      command => "/usr/bin/git clone /var/lib/puppet --bare",
+      path    => "/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin",
+      cwd     => '/root/certs',
+      creates => "/root/certs/ssl.git"
+    } ->
+    exec { "git_add_remote_branch":
+      command => "/usr/bin/git remote add puppet /root/certs/ssl.git",
+      path    => "/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin",
+      cwd     => '/var/lib/puppet/ssl',
     }
-
-    exec { 'run_rsync':
-      command => $rsync_command,
-      path    => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin',
-      creates => "/var/lib/puppet/ssl/ca/ca_crt.pem",
-      require => Package['unison227'],
-    }
-
+    
+    file { '/root/sync_certs':
+      ensure  => present,
+      content => template('master/sync_master_certs.erb'),
+      owner   => "root",
+      group   => "root",
+      mode    => 700,
+    }->
     cron { 'sync_ca':
-      command => "${rsync_command} 2>&1 | logger",
-      minute  => '*/1',
-      require => Package['unison227'],
+      command => "/root/sync_certs 2>&1 | logger",
+      minute  => '*/2',
     }
+
   }
 
 }
