@@ -18,6 +18,50 @@ node 'puppet' {
 
 }
 
+node 'pulp' {
+  class { 'pulp': }
+
+  # Install pulp v2 yum repo
+  class { 'pulp::server': }
+
+  # Install pulp server
+  class { 'pulp::admin_client':
+  }
+
+  # Install admin client
+  class { 'pulp::consumer':
+  }
+
+  # Install pulp agent and client
+
+  # Create a puppet repo
+  puppet_repo { 'repo_id':
+    # Default pulp admin login/password
+    ensure       => 'present',
+    login        => 'admin',
+    password     => 'admin',
+    display_name => 'my test repo',
+    description  => "I lifted this repo from the pulp puppet module and didn't change the description!",
+    feed         => 'http://forge.puppetlabs.com',
+    queries      => ['query1', 'query2'],
+    schedules    => ['2012-12-16T00:00Z/P1D', '2012-12-17T00:00Z/P1D'],
+    serve_http   => true,
+    serve_https  => true,
+    notes        => {
+      'note1' => 'value 1',
+      'note2' => 'value 2'
+    }
+  }
+
+}
+
+node 'mc' {
+  class { '::mcollective':
+    middleware       => true,
+    middleware_hosts => ['mc.coetzee.com'],
+  }
+}
+
 node 'master1' {
   class { 'master':
     autosign             => true,
@@ -128,4 +172,3 @@ node 'dashboard' {
   }
 
 }
-

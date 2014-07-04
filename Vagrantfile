@@ -6,17 +6,19 @@ box      =  'centos65-x86_64_3'
 url      = 'file://C:\Users\raymond.coetzee\Dropbox\centos65-x86_64_3.box'
 
 adminnodes = [
-  { :hostname => 'puppet',     			:ip => '192.168.2.31', :box => box, :ram => 512, :ssh_port => 2211 },  
+  { :hostname => 'puppet',     			:ip => '192.168.2.31', :box => box, :ram => 512, :ssh_port => 2211 },
+  { :hostname => 'pulp',     			:ip => '192.168.2.32', :box => box, :ram => 512, :ssh_port => 2212 },  
+  { :hostname => 'mc',  	   			:ip => '192.168.2.33', :box => box, :ram => 512, :ssh_port => 2213 },    
 ]
 
 nodes = [ 
-  { :hostname => 'puppetdb-postgres',   	:ip => '192.168.2.36', :box => box, :ram => 512, :ssh_port => 2216 },
-  { :hostname => 'puppetdb', 			:ip => '192.168.2.37', :box => box, :ram => 512, :ssh_port => 2217 },
-  { :hostname => 'dashboard',     		:ip => '192.168.2.38', :box => box, :ram => 512, :ssh_port => 2218 },
-  { :hostname => 'master1',    			:ip => '192.168.2.32', :box => box, :ram => 512, :ssh_port => 2212 },
-  { :hostname => 'master2',    			:ip => '192.168.2.33', :box => box, :ram => 512, :ssh_port => 2213 },
-  { :hostname => 'cacert1',    			:ip => '192.168.2.34', :box => box, :ram => 512, :ssh_port => 2214 },
-  { :hostname => 'cacert2',    			:ip => '192.168.2.35', :box => box, :ram => 512, :ssh_port => 2215 },
+  { :hostname => 'puppetdb-postgres',   :ip => '192.168.2.34', :box => box, :ram => 512, :ssh_port => 2214 },
+  { :hostname => 'puppetdb', 			:ip => '192.168.2.35', :box => box, :ram => 512, :ssh_port => 2215 },
+  { :hostname => 'dashboard',     		:ip => '192.168.2.36', :box => box, :ram => 512, :ssh_port => 2216 },
+  { :hostname => 'master1',    			:ip => '192.168.2.37', :box => box, :ram => 512, :ssh_port => 2217 },
+  { :hostname => 'master2',    			:ip => '192.168.2.38', :box => box, :ram => 512, :ssh_port => 2218 },
+  { :hostname => 'cacert1',    			:ip => '192.168.2.39', :box => box, :ram => 512, :ssh_port => 2219 },
+  { :hostname => 'cacert2',    			:ip => '192.168.2.40', :box => box, :ram => 512, :ssh_port => 2220 },
 ]
 
 Vagrant.configure("2") do |config|

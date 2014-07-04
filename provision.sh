@@ -25,15 +25,20 @@ install_module puppetdb puppetlabs-puppetdb
 install_module dashboard puppetlabs-dashboard
 install_module ntp puppetlabs-ntp
 install_module phppgadmin knowshan-phppgadmin
+install_module mcollective puppetlabs-mcollective
+install_module pulp hawknewton-pulp
 
 add_host puppet 192.168.2.31
-add_host master1 192.168.2.32
-add_host master2 192.168.2.33
-add_host cacert1 192.168.2.34
-add_host cacert2 192.168.2.35       
-add_host puppetdb-postgres 192.168.2.36
-add_host puppetdb 192.168.2.37
-add_host dashboard 192.168.2.38
+add_host pulp 192.168.2.32
+add_host mc 192.168.2.33
+add_host puppetdb-postgres 192.168.2.34
+add_host puppetdb 192.168.2.35
+add_host dashboard 192.168.2.36
+add_host master1 192.168.2.37
+add_host master2 192.168.2.38
+add_host cacert1 192.168.2.39
+add_host cacert2 192.168.2.40  
+     
 add_host gitolite 192.168.2.28
 add_host gitlab 192.168.2.22
 add_host gitorious 192.168.2.23
