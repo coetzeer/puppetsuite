@@ -1,13 +1,18 @@
-#!/bin/bash -ev
+#!/bin/bash -e
 HOSTNAME=`hostname`
+
+git config --global user.name "$HOSTNAME Puppet sync"
+git config --global user.email "puppet_sync@${HOSTNAME}"
 
 
 cd /var/lib/puppet/ssl
+git pull puppet master
+
 DO_GIT=`git status | grep "nothing to commit" | wc -l`
 if [ $DO_GIT -eq 0 ];
 then
-	git pull puppet master
-	git add * 
-	git commit -m "cron commit from $HOSTNAME"
+	git commit -a -m "cron commit from $HOSTNAME"
 	git push puppet
 fi
+
+chown -R puppet:puppet /var/lib/puppet/ssl
