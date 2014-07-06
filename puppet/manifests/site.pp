@@ -12,7 +12,7 @@ node 'puppet' {
     load_balancer        => true,
     part_of_cluster      => true,
     puppetdash_host      => 'dashboard.coetzee.com',
-   puppetdb_host        => 'puppetdb.coetzee.com',
+    puppetdb_host        => 'puppetdb.coetzee.com',
   }
 
 }
@@ -94,10 +94,17 @@ node 'puppetdb-postgres' {
   # CentOS/RHEL 6, 64-Bit:
   # wget http://yum.postgresql.org/9.1/redhat/rhel-6.3-x86_64/pgdg-centos91-9.1-4.noarch.rpm
   # TODO: make this more portable
-  package { 'postgresql-repo':
-    source   => 'http://yum.postgresql.org/9.1/redhat/rhel-6.3-x86_64/pgdg-centos91-9.1-4.noarch.rpm',
-    ensure   => installed,
-    provider => 'rpm',    
+  #  package { 'postgresql-repo':
+  #    source   => 'http://yum.postgresql.org/9.1/redhat/rhel-6.3-x86_64/pgdg-centos91-9.1-4.noarch.rpm',
+  #    ensure   => installed,
+  #    provider => 'rpm',
+  #    creates => '/etc/yum.repos.d/pgdg-91-centos.repo'
+  #  }
+
+  exec { 'postgresql-repo':
+    command => 'rpm -i http://yum.postgresql.org/9.1/redhat/rhel-6.3-x86_64/pgdg-centos91-9.1-4.noarch.rpm',
+    path    => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin',
+    creates => '/etc/yum.repos.d/pgdg-91-centos.repo'
   }
 
   class { 'puppetdb::database::postgresql':
@@ -105,8 +112,14 @@ node 'puppetdb-postgres' {
   }
 
   class { 'phppgadmin':
-    require => [Class['puppetdb::database::postgresql'], Package['postgresql-repo'],]
+    require => [Class['puppetdb::database::postgresql'], Exec['postgresql-repo'],]
   }
+
+#  file_line { 'allow_from_all':
+#    path  => '/etc/httpd/conf.d/phpPgAdmin.conf',
+#    line  => '^Deny.from.all*',
+#    match => 'Deny from all',
+#  }
 
 }
 

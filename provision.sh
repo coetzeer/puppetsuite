@@ -19,6 +19,39 @@ function add_host {
 	fi
 }
  
+function init_git {
+
+	if [ ! -d /vagrant/repo/modules.git ];
+	then
+		cd /etc/puppet/modules
+		git init
+		git add *
+		git commit -m "first commit of modules"
+		mkdir /vagrant/repo
+		cd /vagrant/repo
+		git clone --bare /etc/puppet/modules/.git
+	fi
+
+	rm -fr /etc/puppet/modules
+	cd /etc/puppet
+	git clone /vagrant/repo/modules.git
+}
+
+function commit_git {	
+	cd /etc/puppet/modules
+	
+	DO_GIT=`git status | grep "nothing to commit" | wc -l`
+	if [ $DO_GIT -eq 0 ];
+	then
+		git add *
+		git commit -m "committing new modules"
+		git push origin master
+	fi
+} 
+
+
+init_git
+install_module pulp hawknewton-pulp
 install_module mysql puppetlabs-mysql
 install_module apache puppetlabs-apache
 install_module puppetdb puppetlabs-puppetdb
@@ -26,10 +59,12 @@ install_module dashboard puppetlabs-dashboard
 install_module ntp puppetlabs-ntp
 install_module phppgadmin knowshan-phppgadmin
 install_module mcollective puppetlabs-mcollective
-install_module pulp hawknewton-pulp
 install_module nfs haraldsk-nfs --ignore-dependencies
 install_module epel stahnma-epel
 install_module puppetboard nibalizer-puppetboard
+install_module timezone bashtoni-timezone
+commit_git
+
 
 add_host puppet 192.168.2.31
 add_host pulp 192.168.2.32
