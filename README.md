@@ -2,31 +2,22 @@
 
 Attempt to make a puppet master cluster that includes:
 * a load balancer (and initial puppet master)
+** this node also serves as a 'hot standby' for the puppet master nodes and caserver nodes, because they use this node as the initial master and caserver.
+** also provides an nfs export that is mounted by both masters and ca servers. Serves as a common store for ca certs.
 * two dedicated puppet masters running with passenger, rake and apache
 * two dedicated CA servers
 * puppetdb server
-* puppetdb database backend running postgres
+* puppetdb database backend running postgres + phppgadmin
 * puppet dashboard server
 * puppedash
-
-So far:
-* Got a passenger + Rake + apache master working well
-* installed puppetdb
-* installed puppetdb db backends
-
-Currently battling with:
-* Load balancing for dedicated puppet masters
+* an Mcollective node
 
 
 TODO:
-* finish setting up masters
-** get load balancing to work
-** sync modules and certs between masters with rsync
-* set up CA servers
-** sync certs to CA servers
-* set up puppetdash - https://forge.puppetlabs.com/nibalizer/puppetboard
+* set up puppetboard - https://forge.puppetlabs.com/nibalizer/puppetboard
 ** potentially set this up on the same box as the puppetdb?
-* set up phppgadmin - https://forge.puppetlabs.com/knowshan/phppgadmin
+* externalize configuration with heira
+** use zookeepr as a heira backend
 * investigate testing
 ** rspec
 ** rspec_system
@@ -37,9 +28,8 @@ TODO:
 
 
 Ongoing problems:
-* Figure out a good way to sync module dependencies to the master
+
 ** Puppet install modules is fine, but slow
-* Figure out a good way to bootstrap this cluster - chicken and egg
 * rpm, gem and puppet module cache
 ** http://www.pulpproject.org/
 ** https://github.com/copiousfreetime/stickler

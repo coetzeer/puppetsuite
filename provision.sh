@@ -5,7 +5,7 @@
 function install_module {
    if [ ! -d /etc/puppet/modules/$1 ];
     then
-        puppet module install $2 --modulepath /etc/puppet/modules
+        puppet module install $2 --modulepath /etc/puppet/modules $3
     fi
 }
 
@@ -27,6 +27,9 @@ install_module ntp puppetlabs-ntp
 install_module phppgadmin knowshan-phppgadmin
 install_module mcollective puppetlabs-mcollective
 install_module pulp hawknewton-pulp
+install_module nfs haraldsk-nfs --ignore-dependencies
+install_module epel stahnma-epel
+install_module puppetboard nibalizer-puppetboard
 
 add_host puppet 192.168.2.31
 add_host pulp 192.168.2.32

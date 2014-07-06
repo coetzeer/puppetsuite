@@ -1,6 +1,6 @@
 class master::mod_passenger_rpm () {
-  #https://www.phusionpassenger.com/documentation/Users%20guide%20Apache.html#_installing_or_upgrading_on_red_hat_fedora_centos_or_scientificlinux
-  
+  # https://www.phusionpassenger.com/documentation/Users%20guide%20Apache.html#_installing_or_upgrading_on_red_hat_fedora_centos_or_scientificlinux
+
   package { 'passenger': provider => 'gem' }
 
   # TODO: make this more portable
@@ -11,10 +11,14 @@ class master::mod_passenger_rpm () {
   }
 
   # TODO: make this more portable
-  package { 'epel-release':
-    source   => 'http://ftp.heanet.ie/pub/fedora/epel/6/i386/epel-release-6-8.noarch.rpm',
-    ensure   => installed,
-    provider => 'rpm',
+  #  package { 'epel-release':
+  #    source   => 'http://ftp.heanet.ie/pub/fedora/epel/6/i386/epel-release-6-8.noarch.rpm',
+  #    ensure   => installed,
+  #    provider => 'rpm',
+  #  }
+
+  class { 'epel':
+    epel_proxy => 'absent'
   }
 
   # TODO: make this more portable

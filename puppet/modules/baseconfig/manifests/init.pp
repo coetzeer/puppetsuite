@@ -3,12 +3,6 @@
 # Performs initial configuration tasks for all Vagrant boxes.
 #
 class baseconfig {
-  class { 'apache': }
-
-  class { 'apache::mod::ssl':
-    ssl_compression => false,
-    ssl_options     => ['StdEnvVars'],
-  }
 
   ini_setting { "report":
     ensure  => present,
@@ -27,5 +21,10 @@ class baseconfig {
   }
   
   package { 'mutt': }
+  
+#  server 0.ie.pool.ntp.org
+#     server 1.ie.pool.ntp.org
+#     server 2.ie.pool.ntp.org
+#     server 3.ie.pool.ntp.org
 
 }

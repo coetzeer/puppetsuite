@@ -14,7 +14,15 @@ class master (
   $install_passenger_from_rpm = true) {
   class { 'master::install': stage => 'pre' }
 
-  class { 'apache::mod::headers': }
+  class { 'apache': }
+
+  class { 'apache::mod::ssl':
+    ssl_compression => false,
+    ssl_options     => ['StdEnvVars'],
+  }
+
+  class { 'apache::mod::headers':
+  }
 
   service { "puppetmaster":
     ensure  => "stopped",
@@ -51,11 +59,6 @@ class master (
   }
 
   class { 'master::setup_ssh':
-    
-  }
-
-  class { 'master::sync_certs':
-    require => Class['master::setup_ssh']
   }
 
   cron { 'sync_manifests':

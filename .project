@@ -3,6 +3,7 @@
 	<name>puppet_suite</name>
 	<comment></comment>
 	<projects>
+		<project>pulp</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

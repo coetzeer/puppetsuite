@@ -1,6 +1,7 @@
 class master::install () {
   package { 'puppet-server': }
 
+  class { 'master::sync_certs': } ->
   exec { 'start_server':
     command => 'service puppetmaster start',
     path    => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin',

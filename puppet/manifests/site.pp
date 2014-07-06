@@ -19,39 +19,7 @@ node 'puppet' {
 }
 
 node 'pulp' {
-  class { 'pulp': }
-
-  # Install pulp v2 yum repo
-  class { 'pulp::server': }
-
-  # Install pulp server
-  class { 'pulp::admin_client':
-  }
-
-  # Install admin client
-  class { 'pulp::consumer':
-  }
-
-  # Install pulp agent and client
-
-  # Create a puppet repo
-  puppet_repo { 'repo_id':
-    # Default pulp admin login/password
-    ensure       => 'present',
-    login        => 'admin',
-    password     => 'admin',
-    display_name => 'my test repo',
-    description  => "I lifted this repo from the pulp puppet module and didn't change the description!",
-    feed         => 'http://forge.puppetlabs.com',
-    queries      => ['query1', 'query2'],
-    schedules    => ['2012-12-16T00:00Z/P1D', '2012-12-17T00:00Z/P1D'],
-    serve_http   => true,
-    serve_https  => true,
-    notes        => {
-      'note1' => 'value 1',
-      'note2' => 'value 2'
-    }
-  }
+  class { 'pulp_wrapper': }
 
 }
 
@@ -109,6 +77,8 @@ node 'cacert2' {
 }
 
 node 'puppetdb-postgres' {
+  class { 'apache': }
+
   # Here we install and configure postgres and the puppetdb
   # database instance, and tell postgres that it should
   # listen for connections to the hostname puppetdb-postgres
@@ -142,11 +112,43 @@ node 'puppetdb-postgres' {
 }
 
 node 'puppetdb' {
+  class { 'epel': epel_proxy => 'absent' }
+
+  class { 'apache':
+    purge_configs => false,
+    mpm_module    => 'prefork',
+    default_vhost => true,
+    default_mods  => false,
+  }
+
+  class { 'apache::mod::wsgi':
+    wsgi_socket_prefix => "/var/run/wsgi",
+    require            => Class['epel'],
+  }
+
+  #  class { 'puppetboard::apache::vhost':
+  #    vhost_name => "${fqdn}",
+  #    port       => 80,
+  #    wsgi_alias => '/pboard',
+  #  }
+
+  class { 'puppetboard::apache::conf':
+  }
+
   class { 'puppetdb::server':
     database_host      => 'puppetdb-postgres',
     listen_address     => '0.0.0.0',
     ssl_listen_address => '0.0.0.0',
   }
+
+  class { 'puppetboard':
+    manage_git          => true,
+    manage_virtualenv   => true,
+    puppetdb_host       => $fqdn,
+    puppetdb_port       => '8080',
+    require             => [Class['puppetdb::server'], Class['epel']]
+  }
+
 }
 
 node 'dashboard' {
