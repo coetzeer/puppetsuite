@@ -31,7 +31,7 @@ class master::mod_passenger_rpm () {
 
   package { 'mod_passenger':
     ensure  => installed,
-    require => [Package['passenger-release'], Package['epel-release'],]
+    require => [Package['passenger-release'], Class['epel'],]
   }
 
   class { 'apache::mod::passenger':
