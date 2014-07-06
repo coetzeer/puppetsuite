@@ -21,39 +21,44 @@
 #
 # Sample Usage:
 #
-class dashboard::passenger (
-  $dashboard_site,
-  $dashboard_port,
-  $dashboard_config,
-  $dashboard_root
-) inherits dashboard {
+class dashboard::passenger ($dashboard_site, $dashboard_port, $dashboard_config, $dashboard_root) inherits dashboard {
+  #  require ::passenger
+  class { 'apache': default_vhost => false, }
 
-#  require ::passenger
-  include apache
+  #  file { '/etc/init.d/puppet-dashboard':
+  #    ensure => absent,
+  #  }
+  #
+  #  file { 'dashboard_config':
+  #    ensure => absent,
+  #    path   => $dashboard_config,
+  #  }
 
-  file { '/etc/init.d/puppet-dashboard':
-    ensure => absent,
+  service { "puppetmaster":
+    ensure => "stopped",
+    enable => false
   }
 
-  file { 'dashboard_config':
-    ensure => absent,
-    path   => $dashboard_config,
+  if (true) {
+    class { 'master::mod_passenger_rpm': }
+  } else {
+    class { 'master::mod_passenger_gem': }
   }
 
-#  apache::vhost { $dashboard_site:
-#    port     => $dashboard_port,
-#    docroot  => "${dashboard_root}/public",
-#    priority => '50',    
-#    template => 'dashboard/passenger-vhost.erb',
-#  }
-#  
-#  file { 'dashboard_vhost':
-#      ensure  => present,
-#      path    => $dashboard_config,
-#      content => template("dashboard/passenger-vhost.erb"),
-#      owner   => '0',
-#      group   => '0',
-#      mode    => '0644',
-#      require => Class['apache::vhost'],
-#    }
+  #  apache::vhost { $dashboard_site:
+  #    port     => $dashboard_port,
+  #    docroot  => "${dashboard_root}/public",
+  #    priority => '50',
+  #    template => 'dashboard/passenger-vhost.erb',
+  #  }
+  #
+  file { "/etc/${apache::params::apache_name}/conf.d/dashboard-vhost.conf":
+    ensure  => present,
+    content => template("dashboard/passenger-vhost.erb"),
+    owner   => 'apache',
+    group   => 'apache',
+    mode    => '0644',
+    require => Class['apache'],
+    notify  => Service[$apache::params::apache_name],
+  }
 }

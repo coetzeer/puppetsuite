@@ -2,7 +2,6 @@
 stage { 'pre': before => Stage['main'] }
 
 include baseconfig
-include '::ntp'
 
 node 'puppet' {
   class { 'master':
@@ -13,7 +12,7 @@ node 'puppet' {
     load_balancer        => true,
     part_of_cluster      => true,
     puppetdash_host      => 'dashboard.coetzee.com',
-  # puppetdb_host        => 'puppetdb.coetzee.com',
+   puppetdb_host        => 'puppetdb.coetzee.com',
   }
 
 }
@@ -98,7 +97,7 @@ node 'puppetdb-postgres' {
   package { 'postgresql-repo':
     source   => 'http://yum.postgresql.org/9.1/redhat/rhel-6.3-x86_64/pgdg-centos91-9.1-4.noarch.rpm',
     ensure   => installed,
-    provider => 'rpm',
+    provider => 'rpm',    
   }
 
   class { 'puppetdb::database::postgresql':
@@ -142,11 +141,11 @@ node 'puppetdb' {
   }
 
   class { 'puppetboard':
-    manage_git          => true,
-    manage_virtualenv   => true,
-    puppetdb_host       => $fqdn,
-    puppetdb_port       => '8080',
-    require             => [Class['puppetdb::server'], Class['epel']]
+    manage_git        => true,
+    manage_virtualenv => true,
+    puppetdb_host     => $fqdn,
+    puppetdb_port     => '8080',
+    require           => [Class['puppetdb::server'], Class['epel']]
   }
 
 }
@@ -162,15 +161,15 @@ node 'dashboard' {
     dashboard_db       => 'dashboard_prod',
     dashboard_charset  => 'utf8',
     dashboard_site     => $fqdn,
-    dashboard_port     => '8080',
+    dashboard_port     => '80',
     mysql_root_pw      => 'descartes',
-    passenger          => false,
+    passenger          => true,
   }
 
-  firewall { "3000 accept - puppetdashboard":
+  firewall { "3000 reject - puppetdashboard":
     port   => '3000',
     proto  => 'tcp',
-    action => 'accept',
+    action => 'reject',
   }
 
 }

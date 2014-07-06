@@ -14,6 +14,8 @@ class master (
   $install_passenger_from_rpm = true) {
   class { 'master::install': stage => 'pre' }
 
+  class { 'master::export_certs': }
+
   class { 'apache': }
 
   class { 'apache::mod::ssl':
@@ -41,7 +43,7 @@ class master (
       section => 'master',
       setting => 'autosign',
       value   => true,
-      notify  => [Service["puppetmaster"], Service['httpd']],
+      notify  => [Service["puppetmaster"], Service[$apache::params::apache_name]],
       require => Package['puppet-server'],
     }
   }
@@ -53,7 +55,7 @@ class master (
       enable_reports          => true,
       manage_routes           => true,
       manage_storeconfigs     => true,
-      notify                  => [Service["puppetmaster"], Service['httpd']],
+      notify                  => [Service["puppetmaster"], Service[$apache::params::apache_name]],
     }
 
   }

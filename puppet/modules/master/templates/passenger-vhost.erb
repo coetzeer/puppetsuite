@@ -52,6 +52,6 @@
 		# Stop processes if they sit idle for 10 minutes
 		PassengerPoolIdleTime 600
 	
-	    ErrorLog /var/log/httpd/<%= @fqdn %>_ssl_error.log
-	    CustomLog /var/log/httpd/<%= @fqdn %>_ssl_access.log combined
+	    ErrorLog /var/log/<%= scope.lookupvar("apache::params::apache_name") %>/<%= @fqdn %>_ssl_error.log
+	    CustomLog /var/log/<%= scope.lookupvar("apache::params::apache_name") %>/<%= @fqdn %>_ssl_access.log combined
 	</VirtualHost>

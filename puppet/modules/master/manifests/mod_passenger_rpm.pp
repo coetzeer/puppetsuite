@@ -38,7 +38,7 @@ class master::mod_passenger_rpm () {
     require => Package['mod_passenger']
   }
 
-  file { '/etc/httpd/conf.d/passenger_base.conf':
+  file { "/etc/${apache::params::apache_name}/conf.d/passenger_base.conf":
     ensure  => present,
     content => template('master/passenger_2_config_rpm.erb'),
     owner   => "root",

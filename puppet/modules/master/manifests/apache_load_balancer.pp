@@ -29,13 +29,13 @@ class master::apache_load_balancer ($balancee_master_port = 8142, $balancer_port
     options          => ['ping=5', 'disablereuse=on', 'retry=5', 'ttl=120'],
   }
 
-  file { '/etc/httpd/conf.d/puppetmaster_proxy.conf':
+  file { "/etc/${apache::params::apache_name}/conf.d/puppetmaster_proxy.conf":
     ensure  => present,
     content => template('master/puppet-loadbalance-vhost.erb'),
     owner   => "root",
     group   => "root",
     mode    => 644,
-    notify  => Service['httpd'],
+    notify  => Service[$apache::params::apache_name],
   }
 
 }

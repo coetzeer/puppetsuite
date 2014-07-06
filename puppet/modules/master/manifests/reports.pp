@@ -23,8 +23,8 @@ class master::reports ($puppetdash_host = undef) {
       path    => '/etc/puppet/puppet.conf',
       section => 'master',
       setting => 'reporturl',
-      value   => "http://${puppetdash_host}:3000/reports/upload",
-      notify  => [Service["puppetmaster"], Service['httpd']],
+      value   => "http://${puppetdash_host}/reports/upload",
+      notify  => [Service["puppetmaster"], Service[$apache::params::apache_name]],
       require => Package['puppet-server'],
     }
   }

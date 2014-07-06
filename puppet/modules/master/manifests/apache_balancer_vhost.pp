@@ -13,13 +13,13 @@ class master::apache_balancer_vhost ($balancee_master_port = 8142,) {
     default               : { fail("Unrecognized host") }
   }
 
-  file { '/etc/httpd/conf.d/puppetmaster_behind_balancer.conf':
+  file { "/etc/${apache::params::apache_name}/conf.d/puppetmaster_behind_balancer.conf":
     ensure  => present,
     content => template($template_file),
     owner   => "root",
     group   => "root",
     mode    => 644,
-    notify  => Service['httpd'],
+    notify  => Service[$apache::params::apache_name],
   }
 
 }

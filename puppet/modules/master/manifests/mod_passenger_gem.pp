@@ -35,7 +35,7 @@ class master::mod_passenger_gem () {
     creates => '/root/passenger-install-apache2-module.created',
   }
 
-  file { '/etc/httpd/conf.d/passenger.load':
+  file { "/etc/${apache::params::apache_name}/conf.d/passenger.load":
     ensure  => present,
     content => template('master/passenger_1_load.erb'),
     owner   => "root",
@@ -44,7 +44,7 @@ class master::mod_passenger_gem () {
     require => Package['passenger'],
   }
   
-  file { '/etc/httpd/conf.d/passenger_base.conf':
+  file { "/etc/${apache::params::apache_name}/conf.d/passenger_base.conf":
     ensure  => present,
     content => template('master/passenger_2_config_gem.erb'),
     owner   => "root",

@@ -43,6 +43,6 @@
 		PassengerPoolIdleTime 600
 	
 	
-	    ErrorLog /var/log/httpd/<%= @fqdn %>_balanced_error.log
-	    CustomLog /var/log/httpd/<%= @fqdn %>_balanced_access.log combined
+	    ErrorLog /var/log/<%= scope.lookupvar("apache::params::apache_name") %>/<%= @fqdn %>_balanced_error.log
+	    CustomLog /var/log/<%= scope.lookupvar("apache::params::apache_name") %>/<%= @fqdn %>_balanced_access.log combined
 	</VirtualHost>

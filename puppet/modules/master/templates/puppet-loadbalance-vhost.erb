@@ -40,7 +40,7 @@
 		ProxyPassReverse / balancer://puppetmaster/
 		ProxyPreserveHost On
 	
-	    ErrorLog /var/log/httpd/<%= @fqdn %>_balancer_error.log
-	    CustomLog /var/log/httpd/<%= @fqdn %>_balancer_access.log combined
-	    #CustomLog /var/log/httpd/<%= @fqdn %>balancer_ssl_requests.log "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+	    ErrorLog /var/log/<%= scope.lookupvar("apache::params::apache_name") %>/<%= @fqdn %>_balancer_error.log
+	    CustomLog /var/log/<%= scope.lookupvar("apache::params::apache_name") %>/<%= @fqdn %>_balancer_access.log combined
+	    #CustomLog /var/log/<%= scope.lookupvar("apache::params::apache_name") %>/<%= @fqdn %>balancer_ssl_requests.log "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
 	</VirtualHost>
